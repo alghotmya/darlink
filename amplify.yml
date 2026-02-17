@@ -10,9 +10,9 @@ frontend:
       commands:
         - cd $CODEBUILD_SRC_DIR/darlink/frontend && npm run build
   artifacts:
-    baseDirectory: frontend/dist
+    baseDirectory: darlink/frontend/dist
     files:
       - "**/*"
   cache:
     paths:
-      - frontend/node_modules/**/*
+      - darlink/frontend/node_modules/**/*
