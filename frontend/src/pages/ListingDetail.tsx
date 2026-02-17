@@ -2,22 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { getApiBase } from '../lib/env';
 import LeadForm from '../components/LeadForm';
-
-interface Listing {
-  listingId: string;
-  title: string;
-  description?: string;
-  type: string;
-  price: number;
-  currency: string;
-  countryCode: string;
-  city?: string;
-  area?: string;
-  bedrooms?: number;
-  bathrooms?: number;
-  areaSqm?: number;
-  status: string;
-}
+import type { Listing } from '../types/listing';
 
 export default function ListingDetail() {
   const { id } = useParams<{ id: string }>();

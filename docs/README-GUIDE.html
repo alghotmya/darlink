@@ -190,6 +190,70 @@
     .requirement-block p { margin: 0; font-size: 0.95rem; }
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
     @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
+    .persona-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      margin: 0.75rem 0;
+      border-left: 3px solid var(--accent);
+    }
+    .persona-card h4 { margin: 0 0 0.35rem; font-size: 1rem; color: var(--text); }
+    .persona-card .role { font-size: 0.85rem; color: var(--accent); margin-bottom: 0.5rem; }
+    .persona-card p { margin: 0; font-size: 0.9rem; }
+    .journey-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      margin: 1rem 0;
+    }
+    .journey-card h4 { margin: 0 0 0.5rem; font-size: 1rem; color: var(--accent); }
+    .journey-card p { margin: 0 0 0.5rem; font-size: 0.95rem; }
+    .journey-card ul { margin: 0; padding-left: 1.25rem; font-size: 0.9rem; }
+    .flow-step {
+      display: flex;
+      gap: 1rem;
+      margin: 0.75rem 0;
+      align-items: flex-start;
+    }
+    .flow-step .step-num {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .flow-step .step-body { flex: 1; }
+    .flow-step .step-body strong { color: var(--text); }
+    .flow-step .step-body p { margin: 0.2rem 0 0; font-size: 0.9rem; }
+    .faq-item {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 0.75rem;
+      overflow: hidden;
+    }
+    .faq-item summary {
+      padding: 0.9rem 1rem;
+      background: var(--surface);
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--text);
+      list-style: none;
+    }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::after { content: " +"; color: var(--accent); float: right; }
+    .faq-item[open] summary::after { content: " −"; }
+    .faq-item .faq-answer { padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.95rem; }
+    .concept-list { margin: 1rem 0; }
+    .concept-list dt { font-weight: 600; color: var(--text); margin-top: 0.75rem; }
+    .concept-list dd { margin: 0.25rem 0 0 1rem; color: var(--text-muted); font-size: 0.95rem; }
     footer {
       margin-top: 3rem;
       padding-top: 1.5rem;
@@ -209,12 +273,17 @@
       <h2>Contents</h2>
       <ul>
         <li><a href="#overview">1. Application Overview</a></li>
-        <li><a href="#architecture">2. High-Level Architecture</a></li>
-        <li><a href="#database">3. Database & Entities</a> <a href="#listing-lifecycle" style="font-size:0.9em;color:var(--text-muted)">(listing lifecycle)</a></li>
-        <li><a href="#business">4. Business Requirements</a></li>
-        <li><a href="#functional">5. Functional Requirements</a></li>
-        <li><a href="#nonfunctional">6. Non-Functional Requirements</a></li>
-        <li><a href="#api">7. REST API Summary</a></li>
+        <li><a href="#personas">2. User Personas</a></li>
+        <li><a href="#architecture">3. High-Level Architecture</a></li>
+        <li><a href="#database">4. Database & Entities</a> <a href="#listing-lifecycle" style="font-size:0.9em;color:var(--text-muted)">(lifecycle)</a></li>
+        <li><a href="#business">5. Business Requirements</a></li>
+        <li><a href="#functional">6. Functional Requirements</a></li>
+        <li><a href="#journeys">7. User Journeys</a></li>
+        <li><a href="#flows">8. User Flows</a></li>
+        <li><a href="#nonfunctional">9. Non-Functional Requirements</a></li>
+        <li><a href="#api">10. REST API Summary</a></li>
+        <li><a href="#concepts">11. Key Concepts</a></li>
+        <li><a href="#faqs">12. FAQs</a></li>
       </ul>
     </nav>
 
@@ -230,8 +299,33 @@
       <p>Phase 1 explicitly <strong>excludes</strong> tokenization, KYC/AML, and wallets; the stack is REST-only (no AppSync/GraphQL). Compliance posture is informed by VARA-style auditability (immutable audit logs, append-only) without implementing tokenization in MVP.</p>
     </section>
 
+    <section id="personas">
+      <h2>2. User Personas</h2>
+      <p>DarLink serves several types of users. Understanding who they are and what they need helps clarify feature scope and priorities.</p>
+      <div class="persona-card">
+        <div class="role">Public / Anonymous</div>
+        <h4>Property seeker (tenant or buyer)</h4>
+        <p>Browses listings without logging in. Wants to find a property (rent or buy), view details and photos, and contact the listing owner or agent. Submits a lead (name, email, phone, message) from the listing page. May later sign up to track applications or saved listings (Phase 2).</p>
+      </div>
+      <div class="persona-card">
+        <div class="role">Authenticated — Org member</div>
+        <h4>Agent / Broker / Landlord / Property manager</h4>
+        <p>Belongs to an organization (brokerage, landlord, or property management company). Creates and manages listings (draft → publish → pause/archive or mark leased/sold). Uploads media via presigned URLs. Views and manages leads for their org’s listings. May handle applications and offers (Phase 2).</p>
+      </div>
+      <div class="persona-card">
+        <div class="role">Authenticated — Admin</div>
+        <h4>Organization admin</h4>
+        <p>Manages the organization: invites users, assigns roles, views audit logs. Has access to org-scoped listing CRUD and media. May moderate content or handle escalation (Phase 2).</p>
+      </div>
+      <div class="persona-card">
+        <div class="role">System</div>
+        <h4>API consumer (e.g. partner or mobile app)</h4>
+        <p>Uses REST API with admin key or (Phase 2) JWT to manage listings and media on behalf of an org. Same capabilities as agent/broker from an API perspective.</p>
+      </div>
+    </section>
+
     <section id="architecture">
-      <h2>2. High-Level Architecture</h2>
+      <h2>3. High-Level Architecture</h2>
       <p>The system is built on AWS with a clear separation: React frontend (Amplify), REST API (API Gateway + Lambda), DynamoDB (single-table), S3 (media), and Cognito (auth).</p>
 
       <h3>Architecture Diagram</h3>
@@ -316,7 +410,7 @@
     </section>
 
     <section id="database">
-      <h2>3. Database & Entities</h2>
+      <h2>4. Database & Entities</h2>
       <p>DynamoDB uses a <strong>single-table design</strong>. Key patterns and entity types are defined in <code>backend/lib/entities.ts</code>. Every tenant-scoped item includes <code>orgId</code>; access is always scoped by org for authorization.</p>
 
       <h3>Primary Key Patterns</h3>
@@ -409,7 +503,7 @@
     </section>
 
     <section id="business">
-      <h2>4. Business Requirements</h2>
+      <h2>5. Business Requirements</h2>
       <ul>
         <li><strong>Multi-tenant marketplace</strong> — Support multiple organizations (brokerages, landlords, property managers) with strict tenant isolation (<code>orgId</code> on every record; no cross-org data access).</li>
         <li><strong>Rent/lease and buy/sell</strong> — Listings support type <code>rent</code> or <code>sale</code> with price, currency, and location attributes for UAE/GCC/Egypt.</li>
@@ -421,7 +515,7 @@
     </section>
 
     <section id="functional">
-      <h2>5. Functional Requirements</h2>
+      <h2>6. Functional Requirements</h2>
 
       <h3>Public (no login)</h3>
       <div class="requirement-block">
@@ -463,8 +557,108 @@
       <p>Phase 1: Cognito User Pool exists; public and admin-key–protected endpoints are implemented. Cognito authorizer on API Gateway and full RBAC/org-scoped auth (e.g. JWT validation in Lambdas) are targeted for Phase 2.</p>
     </section>
 
+    <section id="journeys">
+      <h2>7. User Journeys</h2>
+      <p>User journeys describe <strong>end-to-end scenarios</strong> from the user’s perspective: goal, context, and main steps. They complement functional requirements by showing how features fit together.</p>
+
+      <div class="journey-card">
+        <h4>Journey 1: Find a property and submit an inquiry</h4>
+        <p><strong>Who:</strong> Property seeker (anonymous). <strong>Goal:</strong> Find a rental or sale listing and get in touch with the agent/owner.</p>
+        <ul>
+          <li>Open DarLink (web).</li>
+          <li>Browse or search listings (filter by country, type rent/sale, optional city).</li>
+          <li>Open a listing to view details, photos, price, location.</li>
+          <li>Decide to inquire → fill lead form (name, email, phone, message) and submit.</li>
+          <li>Receive confirmation (or redirect); agent/org receives the lead in their inbox (Phase 2 UI) or via backend.</li>
+        </ul>
+      </div>
+
+      <div class="journey-card">
+        <h4>Journey 2: Publish and manage a listing</h4>
+        <p><strong>Who:</strong> Agent, broker, or landlord. <strong>Goal:</strong> Add a property, attach photos, publish it, and later mark it leased/sold or pause it.</p>
+        <ul>
+          <li>Sign in (Phase 2) or use admin key / API.</li>
+          <li>Create a new listing (draft): title, description, price, type, location, attributes.</li>
+          <li>Request presigned URLs, upload photos to S3, add returned keys to the listing.</li>
+          <li>Publish the listing → it appears in public browse.</li>
+          <li>Later: update details, pause (temporarily hide), or set status to leased/sold and optionally set <code>closedAt</code>.</li>
+        </ul>
+      </div>
+
+      <div class="journey-card">
+        <h4>Journey 3: Manage leads and close a deal</h4>
+        <p><strong>Who:</strong> Agent or property manager. <strong>Goal:</strong> See incoming leads, follow up, and when a deal closes, mark the listing as leased or sold.</p>
+        <ul>
+          <li>Access leads inbox (org-scoped; Phase 2 UI or API).</li>
+          <li>View leads per listing; update status (new → contacted → qualified → closed).</li>
+          <li>When tenant/buyer signs: mark listing as <code>leased</code> (rent) or <code>sold</code> (sale); listing disappears from public browse.</li>
+        </ul>
+      </div>
+
+      <div class="journey-card">
+        <h4>Journey 4: Admin manages organization</h4>
+        <p><strong>Who:</strong> Org admin. <strong>Goal:</strong> Invite users, assign roles, and review audit trail.</p>
+        <ul>
+          <li>Create or manage organization (Phase 2).</li>
+          <li>Send invites (email, role); users accept and join org.</li>
+          <li>View audit log for the org (listing changes, lead submissions, status updates) for compliance and support.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="flows">
+      <h2>8. User Flows</h2>
+      <p>User flows are <strong>step-by-step</strong> sequences for key actions. They clarify the exact order of screens or API calls and help implement and test features.</p>
+
+      <h3>Flow A: Public — Browse and submit lead</h3>
+      <div class="flow-step">
+        <span class="step-num">1</span>
+        <div class="step-body"><strong>Open app</strong><p>User visits the DarLink URL (Amplify or local). Home or Listings page loads.</p></div>
+      </div>
+      <div class="flow-step">
+        <span class="step-num">2</span>
+        <div class="step-body"><strong>List listings</strong><p>Frontend calls <code>GET /public/listings</code> (optional query: country, type, limit, nextToken). Results displayed as cards or list.</p></div>
+      </div>
+      <div class="flow-step">
+        <span class="step-num">3</span>
+        <div class="step-body"><strong>Open listing detail</strong><p>User clicks a listing. Frontend calls <code>GET /public/listings/{id}</code>. Detail page shows title, description, price, media (via presigned or public URLs), location.</p></div>
+      </div>
+      <div class="flow-step">
+        <span class="step-num">4</span>
+        <div class="step-body"><strong>Submit lead</strong><p>User fills form (name, email, phone, message) and submits. Frontend calls <code>POST /public/listings/{id}/leads</code> with JSON body. Backend validates, loads listing (must be published), creates Lead under org, returns success or validation error.</p></div>
+      </div>
+
+      <h3>Flow B: Org — Create listing with photos</h3>
+      <div class="flow-step">
+        <span class="step-num">1</span>
+        <div class="step-body"><strong>Create draft</strong><p>Caller sends <code>POST /orgs/{orgId}/listings</code> with admin key; body includes title, description, price, currency, countryCode, type, status=draft, etc. Backend creates listing with <code>pk=ORG#orgId</code>, <code>sk=LISTING#listingId</code>.</p></div>
+      </div>
+      <div class="flow-step">
+        <span class="step-num">2</span>
+        <div class="step-body"><strong>Get presigned URL(s)</strong><p>For each image: <code>POST /orgs/{orgId}/listings/{listingId}/media/presign</code> with <code>{ "fileName": "photo.jpg", "contentType": "image/jpeg" }</code>. Backend returns <code>uploadUrl</code> and <code>key</code>.</p></div>
+      </div>
+      <div class="flow-step">
+        <span class="step-num">3</span>
+        <div class="step-body"><strong>Upload to S3</strong><p>Client uploads file with <code>PUT uploadUrl</code> (binary body). No auth in the PUT; the presigned URL grants one-time write.</p></div>
+      </div>
+      <div class="flow-step">
+        <span class="step-num">4</span>
+        <div class="step-body"><strong>Attach keys and publish</strong><p>Caller sends <code>PUT /orgs/{orgId}/listings/{listingId}</code> with <code>mediaKeys: [key1, key2, ...]</code> and <code>status: "published"</code>. Backend writes listing and a copy to public GSI (<code>ENTITY#LISTING#id</code>) so it appears in <code>GET /public/listings</code>.</p></div>
+      </div>
+
+      <h3>Flow C: Mark listing as leased or sold</h3>
+      <div class="flow-step">
+        <span class="step-num">1</span>
+        <div class="step-body"><strong>Update status</strong><p>Caller sends <code>PUT /orgs/{orgId}/listings/{listingId}</code> with <code>status: "leased"</code> (for rent) or <code>status: "sold"</code> (for sale). Optional: <code>closedAt: "2025-02-16T12:00:00Z"</code>.</p></div>
+      </div>
+      <div class="flow-step">
+        <span class="step-num">2</span>
+        <div class="step-body"><strong>Backend behavior</strong><p>Backend saves listing with new status and sets <code>closedAt</code> if not provided. It deletes the item from the public GSI (<code>ENTITY#LISTING#id</code>), so the listing no longer appears in public browse.</p></div>
+      </div>
+    </section>
+
     <section id="nonfunctional">
-      <h2>6. Non-Functional Requirements</h2>
+      <h2>9. Non-Functional Requirements</h2>
       <table>
         <thead>
           <tr><th>Area</th><th>Requirement</th></tr>
@@ -482,7 +676,7 @@
     </section>
 
     <section id="api">
-      <h2>7. REST API Summary</h2>
+      <h2>10. REST API Summary</h2>
       <table>
         <thead>
           <tr><th>Method</th><th>Path</th><th>Auth</th><th>Description</th></tr>
@@ -501,6 +695,65 @@
         </tbody>
       </table>
       <p>Admin auth: header <code>x-admin-key</code> or <code>Authorization: Bearer &lt;ADMIN_API_KEY&gt;</code> when <code>ADMIN_API_KEY</code> is set in the Lambda environment.</p>
+    </section>
+
+    <section id="concepts">
+      <h2>11. Key Concepts</h2>
+      <p>Short definitions of terms used in this guide and in the product.</p>
+      <dl class="concept-list">
+        <dt>Organization (org)</dt>
+        <dd>A tenant in the multi-tenant system: e.g. a brokerage, landlord, or property management company. All listings, leads, and applications are scoped by <code>orgId</code>. No data is shared across orgs.</dd>
+        <dt>Listing</dt>
+        <dd>A property offered for rent or sale. Has status (draft, published, paused, archived, leased, sold), location, price, media keys, and optional attributes (bedrooms, bathrooms, area). Only <code>published</code> listings appear in public browse.</dd>
+        <dt>Lead</dt>
+        <dd>An inquiry from a visitor: name, email, phone, message, linked to one listing and one org. Leads are managed in the org’s inbox with status (new, contacted, qualified, closed).</dd>
+        <dt>Presigned URL</dt>
+        <dd>A time-limited S3 URL that allows the client to upload (PUT) or download (GET) a single object without exposing AWS credentials. DarLink uses presigned PUT for listing media uploads.</dd>
+        <dt>Public browse</dt>
+        <dd>The experience of listing and viewing published listings without logging in. Implemented by querying the <code>gsi-public-listings</code> GSI; only items with <code>status=published</code> are written to that index.</dd>
+        <dt>Admin key</dt>
+        <dd>Optional shared secret (<code>ADMIN_API_KEY</code>) used to authorize org-scoped API calls (listings CRUD, media presign). Sent via header <code>x-admin-key</code> or <code>Authorization: Bearer &lt;key&gt;</code>. Phase 2 will add Cognito JWT and RBAC.</dd>
+        <dt>Audit log</dt>
+        <dd>Append-only record of important actions (e.g. listing created, published, status changed to leased/sold; lead submitted). Stored per org with timestamp; no updates or deletes. Used for compliance and support.</dd>
+      </dl>
+    </section>
+
+    <section id="faqs">
+      <h2>12. FAQs</h2>
+      <p>Frequently asked questions about DarLink’s design, behavior, and usage.</p>
+
+      <details class="faq-item">
+        <summary>Who can see my listings?</summary>
+        <div class="faq-answer">Only listings with <code>status: published</code> appear in public search and on the listing detail page. Draft, paused, archived, leased, and sold listings are not shown to anonymous users. Org members with the admin key (or later, appropriate role) can list and manage all of their org’s listings via the org API.</div>
+      </details>
+      <details class="faq-item">
+        <summary>What happens when I mark a listing as leased or sold?</summary>
+        <div class="faq-answer">The listing’s <code>status</code> is updated to <code>leased</code> (for rent) or <code>sold</code> (for sale), and <code>closedAt</code> is set. The listing is removed from the public index, so it no longer appears in <code>GET /public/listings</code> or when opening that listing by ID in public context. The record remains in the org’s data for history and reporting.</div>
+      </details>
+      <details class="faq-item">
+        <summary>Do I need to log in to submit a lead?</summary>
+        <div class="faq-answer">No. Lead submission is public: anyone can submit name, email, phone, and message for a published listing. The backend validates the listing exists and is published, then creates a Lead linked to that listing and the listing’s org. No authentication is required for <code>POST /public/listings/{id}/leads</code>.</div>
+      </details>
+      <details class="faq-item">
+        <summary>How do I upload photos for a listing?</summary>
+        <div class="faq-answer">Use the presigned upload flow: (1) Call <code>POST /orgs/{orgId}/listings/{listingId}/media/presign</code> with <code>fileName</code> and <code>contentType</code>; (2) Use the returned <code>uploadUrl</code> to <code>PUT</code> the file (binary body); (3) Add the returned <code>key</code> to the listing’s <code>mediaKeys</code> array via <code>PUT /orgs/{orgId}/listings/{listingId}</code>. The S3 bucket is private; the presigned URL grants one-time write access.</div>
+      </details>
+      <details class="faq-item">
+        <summary>Why is there no GraphQL or AppSync?</summary>
+        <div class="faq-answer">Phase 1 is REST-only by design. This keeps the stack simple (API Gateway REST + Lambda), avoids GraphQL schema and resolver maintenance, and aligns with the project’s requirement to exclude AppSync and GraphQL. All APIs are documented as REST endpoints.</div>
+      </details>
+      <details class="faq-item">
+        <summary>What is “tenant isolation”?</summary>
+        <div class="faq-answer">Every org-scoped record (listings, leads, applications, invites, audit) includes <code>orgId</code>. Queries and APIs always filter by <code>orgId</code> so one organization cannot see or change another’s data. Authorization (admin key or future JWT) must prove the caller is allowed to act for that org.</div>
+      </details>
+      <details class="faq-item">
+        <summary>Which countries/regions are supported?</summary>
+        <div class="faq-answer">Phase 1 supports UAE, GCC, and Egypt. Country codes: AE, SA, BH, KW, OM, QA, EG. Listings have <code>countryCode</code> and optional <code>region</code> (UAE, GCC, Egypt). Public listing list can be filtered by <code>country</code> query parameter.</div>
+      </details>
+      <details class="faq-item">
+        <summary>When will login and role-based access be required for org actions?</summary>
+        <div class="faq-answer">Phase 1 uses an optional admin key for org listing and media APIs. Phase 2 will add Cognito as the API authorizer and enforce RBAC (e.g. only agents/admins can create listings for their org). The User Pool and app client are already provisioned; integration is planned for Phase 2.</div>
+      </details>
     </section>
 
     <footer>

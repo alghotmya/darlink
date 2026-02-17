@@ -17,7 +17,9 @@ export default function Layout() {
           DarLink
         </Link>
         <nav style={{ display: 'flex', gap: '1.5rem' }}>
+          <Link to="/">Home</Link>
           <Link to="/listings">Listings</Link>
+          <Link to="/admin">Admin</Link>
           <Link to="/login">Login</Link>
         </nav>
       </header>
