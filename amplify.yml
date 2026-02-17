@@ -1,16 +1,18 @@
+# AWS Amplify build spec (Hosting - Gen 1)
+# Set env var in Amplify Console: VITE_API_BASE_URL = https://YOUR_API_ID.execute-api.REGION.amazonaws.com/prod/
 version: 1
 frontend:
   phases:
     preBuild:
       commands:
-        - if [ -d frontend ]; then cd frontend; fi && npm install
+        - cd frontend && npm ci
     build:
       commands:
-        - if [ -d frontend ]; then cd frontend; fi && npm run build
+        - cd frontend && npm run build
   artifacts:
     baseDirectory: frontend/dist
     files:
-      - '**/*'
+      - "**/*"
   cache:
     paths:
       - frontend/node_modules/**/*

@@ -1,0 +1,8 @@
+[
+  {
+    "source": "/<*>",
+    "status": "200",
+    "target": "/index.html",
+    "condition": null
+  }
+]

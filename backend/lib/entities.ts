@@ -12,7 +12,8 @@ export type Region = (typeof SUPPORTED_REGIONS)[number];
 export type OrgType = 'brokerage' | 'landlord' | 'property_manager';
 export type UserRole = 'viewer' | 'tenant' | 'buyer' | 'landlord' | 'seller' | 'agent' | 'property_manager' | 'admin';
 export type ListingType = 'rent' | 'sale';
-export type ListingStatus = 'draft' | 'published' | 'paused' | 'archived';
+/** Lifecycle: draft → published (listable) → leased|sold (closed) or paused|archived */
+export type ListingStatus = 'draft' | 'published' | 'paused' | 'archived' | 'leased' | 'sold';
 export type LeadStatus = 'new' | 'contacted' | 'qualified' | 'closed';
 export type ApplicationStatus = 'pending' | 'under_review' | 'approved' | 'declined';
 export type ContractStatus = 'draft' | 'pending_signature' | 'signed' | 'cancelled';
@@ -45,6 +46,9 @@ export interface UserProfile {
   updatedAt: string;
 }
 
+/** S3 key for a single property image (e.g. orgId/listingId/uuid.jpg) */
+export type MediaKey = string;
+
 export interface Listing {
   listingId: string;
   orgId: string;
@@ -64,10 +68,13 @@ export interface Listing {
   bedrooms?: number;
   bathrooms?: number;
   areaSqm?: number;
-  mediaKeys: string[];
+  /** S3 object keys for property pictures (order = display order) */
+  mediaKeys: MediaKey[];
   createdAt: string;
   updatedAt: string;
   publishedAt?: string;
+  /** Set when status becomes leased or sold */
+  closedAt?: string;
 }
 
 export interface Lead {

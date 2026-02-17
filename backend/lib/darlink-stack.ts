@@ -145,6 +145,46 @@ export class DarlinkStack extends cdk.Stack {
 
     this.api.root.addResource('me').addMethod('GET', new apigateway.LambdaIntegration(meHandler));
 
+    // ——— Admin: org listings CRUD + media presign ———
+    const orgListingsHandler = new lambda.Function(this, 'OrgListingsHandler', {
+      functionName: `darlink-${envName}-org-listings`,
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset('lambdas/org-listings'),
+      environment: {
+        TABLE_NAME: this.table.tableName,
+        ADMIN_API_KEY: process.env.ADMIN_API_KEY || '',
+      },
+    });
+    this.table.grantReadWriteData(orgListingsHandler);
+
+    const orgListingMediaHandler = new lambda.Function(this, 'OrgListingMediaHandler', {
+      functionName: `darlink-${envName}-org-listing-media`,
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset('lambdas/org-listing-media'),
+      environment: {
+        TABLE_NAME: this.table.tableName,
+        BUCKET_NAME: this.bucket.bucketName,
+        ADMIN_API_KEY: process.env.ADMIN_API_KEY || '',
+      },
+    });
+    this.table.grantReadData(orgListingMediaHandler);
+    this.bucket.grantPut(orgListingMediaHandler);
+
+    const orgs = this.api.root.addResource('orgs');
+    const orgId = orgs.addResource('{orgId}');
+    const listings = orgId.addResource('listings');
+    listings.addMethod('GET', new apigateway.LambdaIntegration(orgListingsHandler));
+    listings.addMethod('POST', new apigateway.LambdaIntegration(orgListingsHandler));
+    const listingId = listings.addResource('{listingId}');
+    listingId.addMethod('GET', new apigateway.LambdaIntegration(orgListingsHandler));
+    listingId.addMethod('PUT', new apigateway.LambdaIntegration(orgListingsHandler));
+    listingId.addMethod('DELETE', new apigateway.LambdaIntegration(orgListingsHandler));
+    const media = listingId.addResource('media');
+    const presign = media.addResource('presign');
+    presign.addMethod('POST', new apigateway.LambdaIntegration(orgListingMediaHandler));
+
     // ——— Outputs ———
     new cdk.CfnOutput(this, 'UserPoolId', { value: this.userPool.userPoolId, description: 'Cognito User Pool ID' });
     new cdk.CfnOutput(this, 'UserPoolClientId', {

@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DarLink — System Design & Requirements Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0f1419;
+      --surface: #1a2332;
+      --surface2: #243044;
+      --text: #e6edf3;
+      --text-muted: #8b9cb3;
+      --accent: #3b82f6;
+      --accent-dim: #2563eb;
+      --success: #22c55e;
+      --warning: #eab308;
+      --border: #2d3a4f;
+      --radius: 8px;
+      --radius-lg: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      font-size: 16px;
+    }
+    .wrapper {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+    h1 {
+      font-size: 2.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin: 0 0 0.5rem;
+      background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      margin-bottom: 2.5rem;
+    }
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 2.5rem 0 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+    h3 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin: 1.5rem 0 0.75rem;
+      color: var(--text);
+    }
+    p { margin: 0 0 1rem; color: var(--text-muted); }
+    ul, ol {
+      margin: 0 0 1rem;
+      padding-left: 1.5rem;
+      color: var(--text-muted);
+    }
+    li { margin-bottom: 0.35rem; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code, .mono {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9em;
+      background: var(--surface2);
+      padding: 0.15em 0.45em;
+      border-radius: 4px;
+      color: #a5d6ff;
+    }
+    pre {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      overflow-x: auto;
+      margin: 1rem 0;
+      color: var(--text-muted);
+    }
+    pre code { background: none; padding: 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.95rem;
+    }
+    th, td {
+      text-align: left;
+      padding: 0.6rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      background: var(--surface2);
+      color: var(--text);
+      font-weight: 600;
+    }
+    td { color: var(--text-muted); }
+    .badge {
+      display: inline-block;
+      padding: 0.2em 0.5em;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+    .badge-public { background: #1e3a5f; color: #93c5fd; }
+    .badge-auth { background: #1e3a2e; color: #86efac; }
+    .badge-admin { background: #3a2e1e; color: #fcd34d; }
+    .toc {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+    .toc h2 { margin-top: 0; border: none; padding: 0; }
+    .toc ul { list-style: none; padding: 0; margin: 0; }
+    .toc li { margin: 0.5rem 0; }
+    .toc a { color: var(--text); }
+    .diagram {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin: 1rem 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      line-height: 1.7;
+      color: var(--text-muted);
+      white-space: pre;
+      overflow-x: auto;
+    }
+    .arch-diagram {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+      margin: 1.5rem 0;
+      overflow-x: auto;
+    }
+    .arch-diagram svg { display: block; margin: 0 auto; }
+    .status-flow {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 1rem 0;
+      font-size: 0.9rem;
+    }
+    .status-flow .status-box {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.4rem 0.75rem;
+      color: var(--text);
+    }
+    .status-flow .status-box.live { border-color: var(--success); color: #86efac; }
+    .status-flow .status-box.closed { border-color: #f87171; color: #fca5a5; }
+    .status-flow .arrow { color: var(--text-muted); }
+    .entity-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      margin: 0.75rem 0;
+    }
+    .entity-card h4 { margin: 0 0 0.5rem; font-size: 1rem; color: var(--accent); }
+    .entity-card p { margin: 0; font-size: 0.9rem; }
+    .requirement-block {
+      border-left: 3px solid var(--accent);
+      padding-left: 1rem;
+      margin: 1rem 0;
+    }
+    .requirement-block h4 { margin: 0 0 0.25rem; font-size: 1rem; }
+    .requirement-block p { margin: 0; font-size: 0.95rem; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
+    footer {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <h1>DarLink</h1>
+    <p class="subtitle">Phase 1 MVP — System Design, Architecture & Requirements Guide</p>
+    <p>Real estate marketplace for <strong>UAE, GCC and Egypt</strong> (rent/lease + buy/sell). Multi-tenant SaaS, REST API, no tokenization. This document describes the application concept, high-level architecture, data model, and business/functional/non-functional requirements.</p>
+
+    <nav class="toc">
+      <h2>Contents</h2>
+      <ul>
+        <li><a href="#overview">1. Application Overview</a></li>
+        <li><a href="#architecture">2. High-Level Architecture</a></li>
+        <li><a href="#database">3. Database & Entities</a> <a href="#listing-lifecycle" style="font-size:0.9em;color:var(--text-muted)">(listing lifecycle)</a></li>
+        <li><a href="#business">4. Business Requirements</a></li>
+        <li><a href="#functional">5. Functional Requirements</a></li>
+        <li><a href="#nonfunctional">6. Non-Functional Requirements</a></li>
+        <li><a href="#api">7. REST API Summary</a></li>
+      </ul>
+    </nav>
+
+    <section id="overview">
+      <h2>1. Application Overview</h2>
+      <p>DarLink is a Bayut-style real estate marketplace targeting Phase 1 MVP for <strong>UAE, GCC and Egypt</strong>. It supports:</p>
+      <ul>
+        <li><strong>Rent/lease</strong> and <strong>buy/sell</strong> listings</li>
+        <li><strong>Multi-tenant SaaS</strong> — multiple organizations (brokerages, landlords, property managers) with tenant isolation</li>
+        <li><strong>Public browsing</strong> — search, filter, listing details, and lead submission (contact agent CTA)</li>
+        <li><strong>Org-scoped operations</strong> — listing CRUD, media upload (presigned S3), admin key–protected endpoints</li>
+      </ul>
+      <p>Phase 1 explicitly <strong>excludes</strong> tokenization, KYC/AML, and wallets; the stack is REST-only (no AppSync/GraphQL). Compliance posture is informed by VARA-style auditability (immutable audit logs, append-only) without implementing tokenization in MVP.</p>
+    </section>
+
+    <section id="architecture">
+      <h2>2. High-Level Architecture</h2>
+      <p>The system is built on AWS with a clear separation: React frontend (Amplify), REST API (API Gateway + Lambda), DynamoDB (single-table), S3 (media), and Cognito (auth).</p>
+
+      <h3>Architecture Diagram</h3>
+      <div class="arch-diagram">
+        <svg viewBox="0 0 520 380" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;">
+          <defs>
+            <linearGradient id="boxGrad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:#243044"/><stop offset="100%" style="stop-color:#1a2332"/></linearGradient>
+            <linearGradient id="accentGrad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:#3b82f6"/><stop offset="100%" style="stop-color:#2563eb"/></linearGradient>
+            <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#8b9cb3"/></marker>
+          </defs>
+          <rect x="10" y="10" width="500" height="360" rx="8" fill="none" stroke="#2d3a4f" stroke-width="1"/>
+          <text x="260" y="32" text-anchor="middle" fill="#8b9cb3" font-size="11" font-family="system-ui,sans-serif">AWS Cloud</text>
+          <!-- User -->
+          <rect x="210" y="48" width="100" height="32" rx="6" fill="url(#boxGrad)" stroke="#2d3a4f"/>
+          <text x="260" y="68" text-anchor="middle" fill="#e6edf3" font-size="12" font-weight="600">User / Browser</text>
+          <path d="M260 80 L260 105" stroke="#8b9cb3" stroke-width="1.5" marker-end="url(#arrow)"/>
+          <!-- Amplify -->
+          <rect x="185" y="110" width="150" height="40" rx="6" fill="url(#boxGrad)" stroke="#2d3a4f"/>
+          <text x="260" y="132" text-anchor="middle" fill="#e6edf3" font-size="12" font-weight="600">AWS Amplify</text>
+          <text x="260" y="145" text-anchor="middle" fill="#8b9cb3" font-size="10">React (Vite) SPA</text>
+          <path d="M260 150 L260 175" stroke="#8b9cb3" stroke-width="1.5" marker-end="url(#arrow)"/>
+          <!-- API Gateway -->
+          <rect x="185" y="180" width="150" height="36" rx="6" fill="url(#accentGrad)" stroke="#2563eb"/>
+          <text x="260" y="200" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">API Gateway REST</text>
+          <text x="260" y="212" text-anchor="middle" fill="#93c5fd" font-size="9">/public/listings, /orgs/.../listings, /me</text>
+          <path d="M260 216 L260 248" stroke="#8b9cb3" stroke-width="1.5" marker-end="url(#arrow)"/>
+          <!-- Lambdas -->
+          <rect x="80" y="253" width="100" height="44" rx="6" fill="url(#boxGrad)" stroke="#2d3a4f"/>
+          <text x="130" y="273" text-anchor="middle" fill="#e6edf3" font-size="10" font-weight="600">public-listings</text>
+          <text x="130" y="285" text-anchor="middle" fill="#8b9cb3" font-size="9">list + get</text>
+          <rect x="210" y="253" width="100" height="44" rx="6" fill="url(#boxGrad)" stroke="#2d3a4f"/>
+          <text x="260" y="273" text-anchor="middle" fill="#e6edf3" font-size="10" font-weight="600">public-lead</text>
+          <text x="260" y="285" text-anchor="middle" fill="#8b9cb3" font-size="9">POST lead</text>
+          <rect x="340" y="253" width="100" height="44" rx="6" fill="url(#boxGrad)" stroke="#2d3a4f"/>
+          <text x="390" y="273" text-anchor="middle" fill="#e6edf3" font-size="10" font-weight="600">org-listings</text>
+          <text x="390" y="285" text-anchor="middle" fill="#8b9cb3" font-size="9">CRUD + media</text>
+          <path d="M130 297 L130 320" stroke="#8b9cb3" stroke-width="1" marker-end="url(#arrow)"/>
+          <path d="M260 297 L260 320" stroke="#8b9cb3" stroke-width="1" marker-end="url(#arrow)"/>
+          <path d="M390 297 L390 320" stroke="#8b9cb3" stroke-width="1" marker-end="url(#arrow)"/>
+          <!-- Data layer -->
+          <rect x="40" y="325" width="120" height="36" rx="6" fill="url(#boxGrad)" stroke="#22c55e"/>
+          <text x="100" y="345" text-anchor="middle" fill="#86efac" font-size="11" font-weight="600">DynamoDB</text>
+          <rect x="200" y="325" width="120" height="36" rx="6" fill="url(#boxGrad)" stroke="#22c55e"/>
+          <text x="260" y="345" text-anchor="middle" fill="#86efac" font-size="11" font-weight="600">S3 (media)</text>
+          <rect x="360" y="325" width="120" height="36" rx="6" fill="url(#boxGrad)" stroke="#22c55e"/>
+          <text x="420" y="345" text-anchor="middle" fill="#86efac" font-size="11" font-weight="600">Cognito</text>
+          <path d="M80 320 L100 325" stroke="#2d3a4f" stroke-width="1" stroke-dasharray="3 2"/>
+          <path d="M240 320 L260 325" stroke="#2d3a4f" stroke-width="1" stroke-dasharray="3 2"/>
+          <path d="M400 320 L420 325" stroke="#2d3a4f" stroke-width="1" stroke-dasharray="3 2"/>
+        </svg>
+      </div>
+      <h3>Logical Architecture (ASCII)</h3>
+      <div class="diagram">┌─────────────────────────────────────────────────────────────────────────┐
+│                        AWS Cloud (Region: e.g. me-south-1)                    │
+├─────────────────────────────────────────────────────────────────────────┤
+│  Frontend (React + Vite)  →  AWS Amplify  →  VITE_API_BASE_URL → API     │
+├─────────────────────────────────────────────────────────────────────────┤
+│  API Gateway REST  →  Lambdas: public-listings | public-lead | me |      │
+│  org-listings | org-listing-media                                          │
+├─────────────────────────────────────────────────────────────────────────┤
+│  DynamoDB (single table + GSIs)  |  S3 (media, presigned)  |  Cognito     │
+└───────────────────────────────────────────────────────────────────────────┘</div>
+
+      <h3>Component Summary</h3>
+      <table>
+        <thead>
+          <tr><th>Component</th><th>Role</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>React (Vite)</strong></td><td>SPA: Home, Listings, Listing Detail, Lead Form, Login placeholder. Build output in <code>frontend/dist</code>.</td></tr>
+          <tr><td><strong>AWS Amplify</strong></td><td>Hosting, CI from repo (<code>amplify.yml</code>), env var <code>VITE_API_BASE_URL</code>, SPA rewrites.</td></tr>
+          <tr><td><strong>API Gateway REST</strong></td><td>REST only; no GraphQL. CORS, Lambda proxy integration.</td></tr>
+          <tr><td><strong>Lambda</strong></td><td>Node 20; handlers for public listings (list/get), public lead (POST), /me, org listings CRUD + media presign. Admin protected via <code>x-admin-key</code> or Bearer <code>ADMIN_API_KEY</code>.</td></tr>
+          <tr><td><strong>DynamoDB</strong></td><td>Single table; PK/SK + GSIs. All entities include <code>orgId</code> where applicable; tenant isolation by design.</td></tr>
+          <tr><td><strong>S3</strong></td><td>Private bucket; presigned PUT for uploads. Keys like <code>orgId/listingId/uuid.jpg</code>. No public write.</td></tr>
+          <tr><td><strong>Cognito</strong></td><td>User Pool + Web Client; email sign-in. API authorizer optional in Phase 2.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Environments & IaC</h3>
+      <p>Environments: <code>dev</code>, <code>stage</code>, <code>prod</code> (configurable via CDK context <code>--context env=dev</code>). Infrastructure is defined in <strong>AWS CDK (TypeScript)</strong> in <code>backend/lib/darlink-stack.ts</code>. Cognito, DynamoDB, S3, API Gateway, and Lambdas are provisioned from a single stack.</p>
+    </section>
+
+    <section id="database">
+      <h2>3. Database & Entities</h2>
+      <p>DynamoDB uses a <strong>single-table design</strong>. Key patterns and entity types are defined in <code>backend/lib/entities.ts</code>. Every tenant-scoped item includes <code>orgId</code>; access is always scoped by org for authorization.</p>
+
+      <h3>Primary Key Patterns</h3>
+      <table>
+        <thead>
+          <tr><th>Access pattern</th><th>PK</th><th>SK</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Org metadata</td><td><code>ORG#${orgId}</code></td><td><code>META</code></td></tr>
+          <tr><td>Listing by org</td><td><code>ORG#${orgId}</code></td><td><code>LISTING#${listingId}</code></td></tr>
+          <tr><td>Lead by org</td><td><code>ORG#${orgId}</code></td><td><code>LEAD#${leadId}</code></td></tr>
+          <tr><td>Application by org</td><td><code>ORG#${orgId}</code></td><td><code>APPLICATION#${applicationId}</code></td></tr>
+          <tr><td>Invite by org</td><td><code>ORG#${orgId}</code></td><td><code>INVITE#${inviteId}</code></td></tr>
+          <tr><td>Audit by org</td><td><code>ORG#${orgId}</code></td><td><code>AUDIT#${timestamp}#${auditId}</code></td></tr>
+          <tr><td>Public listing (get by id)</td><td><code>ENTITY#LISTING#${listingId}</code></td><td><code>LISTING#${listingId}</code></td></tr>
+        </tbody>
+      </table>
+
+      <h3>GSIs</h3>
+      <ul>
+        <li><strong>gsi-org-listings</strong> — PK = <code>pk</code>, SK = <code>listingStatus</code> (list listings by org with optional status filter).</li>
+        <li><strong>gsi-public-listings</strong> — PK = <code>gsi1pk</code> (<code>PUBLIC#LISTINGS</code>), SK = <code>gsi1sk</code> (e.g. <code>published#AE#timestamp</code>) for public browse and filter by country.</li>
+        <li><strong>gsi-org-audit</strong> — PK = <code>pk</code>, SK = <code>auditTime</code> for append-only audit log queries by org and time.</li>
+      </ul>
+
+      <h3>Domain Entities</h3>
+      <div class="entity-card">
+        <h4>Organization</h4>
+        <p><code>orgId</code>, <code>name</code>, <code>type</code> (brokerage | landlord | property_manager), <code>countryCode</code>, <code>region</code> (UAE/GCC/Egypt), <code>createdAt</code>, <code>updatedAt</code>.</p>
+      </div>
+      <div class="entity-card">
+        <h4>User / UserProfile</h4>
+        <p><code>userId</code>, <code>email</code>, <code>name</code>, <code>phone</code>, <code>orgIds</code>, <code>roles</code> (orgId → role), <code>createdAt</code>, <code>updatedAt</code>. Roles: viewer, tenant, buyer, landlord, seller, agent, property_manager, admin.</p>
+      </div>
+      <div class="entity-card">
+        <h4>Listing</h4>
+        <p><code>listingId</code>, <code>orgId</code>, <code>status</code> (see lifecycle below), <code>type</code> (rent | sale), <code>title</code>, <code>description</code>, <code>price</code>, <code>currency</code>, <code>countryCode</code>, <code>region</code>, <code>city</code>, <code>area</code>, <code>address</code>, <code>lat</code>, <code>lng</code>, <code>bedrooms</code>, <code>bathrooms</code>, <code>areaSqm</code>, <code>mediaKeys</code> (S3 keys), <code>createdAt</code>, <code>updatedAt</code>, <code>publishedAt</code>, <code>closedAt</code> (when status becomes leased or sold).</p>
+      </div>
+
+      <h3 id="listing-lifecycle">Listing status lifecycle (property dynamics)</h3>
+      <p>Listings support a full lifecycle so properties can be marked as <strong>leased</strong> (rent) or <strong>sold</strong> (sale) when the deal closes. Only <code>published</code> listings appear in public browse; <code>leased</code> and <code>sold</code> are closed outcomes and are excluded from public search.</p>
+      <div class="status-flow">
+        <span class="status-box">draft</span>
+        <span class="arrow">→</span>
+        <span class="status-box live">published</span>
+        <span class="arrow">→</span>
+        <span class="status-box closed">leased</span>
+        <span style="color:var(--text-muted)">(rent)</span>
+        <span class="arrow">|</span>
+        <span class="status-box closed">sold</span>
+        <span style="color:var(--text-muted)">(sale)</span>
+      </div>
+      <p>Optional transitions: <code>published</code> → <code>paused</code> (temporarily hide) or <code>archived</code> (remove from marketplace). When setting <code>status</code> to <code>leased</code> or <code>sold</code>, set <code>closedAt</code> to the current ISO timestamp for reporting and audit.</p>
+      <table>
+        <thead>
+          <tr><th>Status</th><th>Meaning</th><th>Shown in public browse?</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>draft</code></td><td>Not yet live</td><td>No</td></tr>
+          <tr><td><code>published</code></td><td>Live and listable</td><td>Yes</td></tr>
+          <tr><td><code>paused</code></td><td>Temporarily hidden</td><td>No</td></tr>
+          <tr><td><code>archived</code></td><td>Removed from marketplace</td><td>No</td></tr>
+          <tr><td><code>leased</code></td><td>Property rented (outcome)</td><td>No</td></tr>
+          <tr><td><code>sold</code></td><td>Property sold (outcome)</td><td>No</td></tr>
+        </tbody>
+      </table>
+      <div class="entity-card">
+        <h4>Lead</h4>
+        <p><code>leadId</code>, <code>listingId</code>, <code>orgId</code>, <code>name</code>, <code>email</code>, <code>phone</code>, <code>message</code>, <code>status</code> (new | contacted | qualified | closed), <code>assignedToUserId</code>, <code>createdAt</code>, <code>updatedAt</code>.</p>
+      </div>
+      <div class="entity-card">
+        <h4>Application</h4>
+        <p><code>applicationId</code>, <code>listingId</code>, <code>orgId</code>, <code>applicantUserId</code>, <code>applicantEmail</code>, <code>applicantName</code>, <code>docKeys</code>, <code>status</code> (pending | under_review | approved | declined), <code>consentAt</code>, <code>createdAt</code>, <code>updatedAt</code>.</p>
+      </div>
+      <div class="entity-card">
+        <h4>Offer / Contract</h4>
+        <p>Placeholders: <code>offerId</code>, <code>contractId</code>, <code>listingId</code>, <code>orgId</code>, <code>status</code>, <code>signedAt</code>, <code>pdfKey</code>, timestamps.</p>
+      </div>
+      <div class="entity-card">
+        <h4>AuditLog</h4>
+        <p><code>auditId</code>, <code>orgId</code>, <code>actorUserId</code>, <code>entityType</code>, <code>entityId</code>, <code>action</code>, <code>timestamp</code>, <code>diffSummary</code>. Append-only; queryable by org and time.</p>
+      </div>
+      <div class="entity-card">
+        <h4>Invite</h4>
+        <p><code>inviteId</code>, <code>orgId</code>, <code>email</code>, <code>role</code>, <code>status</code> (pending | accepted | expired), <code>expiresAt</code>, <code>createdAt</code>.</p>
+      </div>
+
+      <h3>Supported Geography</h3>
+      <p><code>SUPPORTED_COUNTRIES</code>: AE, SA, BH, KW, OM, QA, EG. <code>SUPPORTED_REGIONS</code>: UAE, GCC, Egypt.</p>
+    </section>
+
+    <section id="business">
+      <h2>4. Business Requirements</h2>
+      <ul>
+        <li><strong>Multi-tenant marketplace</strong> — Support multiple organizations (brokerages, landlords, property managers) with strict tenant isolation (<code>orgId</code> on every record; no cross-org data access).</li>
+        <li><strong>Rent/lease and buy/sell</strong> — Listings support type <code>rent</code> or <code>sale</code> with price, currency, and location attributes for UAE/GCC/Egypt.</li>
+        <li><strong>Lead capture</strong> — Public users can submit leads (name, email, phone, message) from a listing page; leads are stored per org and listing for broker/agent follow-up.</li>
+        <li><strong>Listing lifecycle</strong> — Listings move through draft → published → (optional) paused/archived. Only published listings appear in public browse; org-scoped CRUD and media upload for authorized callers.</li>
+        <li><strong>Auditability</strong> — Critical actions (listing create/update/publish, lead submission, application/contract status changes) must be supportable by an immutable, append-only audit log queryable by org and time (Phase 2 implementation; model and GSI ready).</li>
+        <li><strong>No tokenization in Phase 1</strong> — No wallets, KYC/AML, or token flows; compliance mindset (e.g. VARA-aware) without implementing regulated features in MVP.</li>
+      </ul>
+    </section>
+
+    <section id="functional">
+      <h2>5. Functional Requirements</h2>
+
+      <h3>Public (no login)</h3>
+      <div class="requirement-block">
+        <h4>Browse listings</h4>
+        <p>Search/filter/sort/paginate published listings (e.g. by country, type). Map-ready fields (lat/lng) present; map integration optional.</p>
+      </div>
+      <div class="requirement-block">
+        <h4>Listing detail</h4>
+        <p>View single listing with gallery (mediaKeys → presigned or public-read URLs as implemented), description, price, location, and contact CTA.</p>
+      </div>
+      <div class="requirement-block">
+        <h4>Lead submission</h4>
+        <p>Submit lead form (name, email, phone, message) for a published listing; stored as Lead linked to listing and org. WhatsApp/callback placeholders acceptable.</p>
+      </div>
+      <div class="requirement-block">
+        <h4>Agent/agency pages</h4>
+        <p>Public agent profile and agency pages (placeholders or stubs acceptable in MVP).</p>
+      </div>
+
+      <h3>Authenticated (role-based)</h3>
+      <div class="requirement-block">
+        <h4>Listings management</h4>
+        <p>Agents/brokers/landlords/PMs: create, update, delete listings; publish/pause; attach media via presigned upload then add keys to listing.</p>
+      </div>
+      <div class="requirement-block">
+        <h4>Leads inbox</h4>
+        <p>View and manage leads by org (and optionally by listing/agent); basic pipeline status (new, contacted, qualified, closed).</p>
+      </div>
+      <div class="requirement-block">
+        <h4>Applications & offers/contracts</h4>
+        <p>Lightweight rental application and contract/offer placeholders with real status; full workflows in later phases.</p>
+      </div>
+      <div class="requirement-block">
+        <h4>Admin</h4>
+        <p>Org and user management (invites), audit log viewer, moderation flags. Implemented to the extent of admin-protected org listing CRUD and media presign in Phase 1.</p>
+      </div>
+
+      <h3>AuthN/AuthZ (Phase 1 vs Phase 2)</h3>
+      <p>Phase 1: Cognito User Pool exists; public and admin-key–protected endpoints are implemented. Cognito authorizer on API Gateway and full RBAC/org-scoped auth (e.g. JWT validation in Lambdas) are targeted for Phase 2.</p>
+    </section>
+
+    <section id="nonfunctional">
+      <h2>6. Non-Functional Requirements</h2>
+      <table>
+        <thead>
+          <tr><th>Area</th><th>Requirement</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Availability</strong></td><td>Use managed AWS services (API Gateway, Lambda, DynamoDB, S3, Amplify) with regional deployment; target high availability; no single-server dependency.</td></tr>
+          <tr><td><strong>Latency</strong></td><td>API responses and listing browse/list within acceptable bounds for web (e.g. &lt; 2–3 s for list/detail); DynamoDB single-table and GSIs used to avoid scans.</td></tr>
+          <tr><td><strong>Security</strong></td><td>Least-privilege IAM for Lambdas; S3 private with presigned URLs only; input validation and sanitization on public lead endpoint; no public write on buckets.</td></tr>
+          <tr><td><strong>Tenant isolation</strong></td><td>All org-scoped data accessed by <code>orgId</code>; authorization enforced on every API call that touches org data (admin key or future JWT + RBAC).</td></tr>
+          <tr><td><strong>Auditability</strong></td><td>Append-only audit log; no updates/deletes on audit records; queryable by org and time (GSI).</td></tr>
+          <tr><td><strong>Environments</strong></td><td>dev / stage / prod via CDK context and Amplify env vars; separate table and bucket per env where applicable.</td></tr>
+          <tr><td><strong>Local dev & seed</strong></td><td>Seed script(s) and local run instructions (e.g. <code>npm run dev:api</code>, <code>npm run dev</code>) for frontend and backend.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="api">
+      <h2>7. REST API Summary</h2>
+      <table>
+        <thead>
+          <tr><th>Method</th><th>Path</th><th>Auth</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>GET</td><td><code>/public/listings</code></td><td><span class="badge badge-public">Public</span></td><td>List published listings (query: country, type, limit, nextToken).</td></tr>
+          <tr><td>GET</td><td><code>/public/listings/{id}</code></td><td><span class="badge badge-public">Public</span></td><td>Get one published listing.</td></tr>
+          <tr><td>POST</td><td><code>/public/listings/{id}/leads</code></td><td><span class="badge badge-public">Public</span></td><td>Submit lead (body: name, email, phone?, message?).</td></tr>
+          <tr><td>GET</td><td><code>/me</code></td><td><span class="badge badge-auth">Auth (placeholder)</span></td><td>Current user profile (no auth enforced in MVP).</td></tr>
+          <tr><td>GET</td><td><code>/orgs/{orgId}/listings</code></td><td><span class="badge badge-admin">Admin key</span></td><td>List org listings (optional status, limit).</td></tr>
+          <tr><td>POST</td><td><code>/orgs/{orgId}/listings</code></td><td><span class="badge badge-admin">Admin key</span></td><td>Create listing.</td></tr>
+          <tr><td>GET</td><td><code>/orgs/{orgId}/listings/{listingId}</code></td><td><span class="badge badge-admin">Admin key</span></td><td>Get one listing.</td></tr>
+          <tr><td>PUT</td><td><code>/orgs/{orgId}/listings/{listingId}</code></td><td><span class="badge badge-admin">Admin key</span></td><td>Update listing (include mediaKeys after upload).</td></tr>
+          <tr><td>DELETE</td><td><code>/orgs/{orgId}/listings/{listingId}</code></td><td><span class="badge badge-admin">Admin key</span></td><td>Delete listing.</td></tr>
+          <tr><td>POST</td><td><code>/orgs/{orgId}/listings/{listingId}/media/presign</code></td><td><span class="badge badge-admin">Admin key</span></td><td>Get presigned URL (body: fileName, contentType); returns uploadUrl, key.</td></tr>
+        </tbody>
+      </table>
+      <p>Admin auth: header <code>x-admin-key</code> or <code>Authorization: Bearer &lt;ADMIN_API_KEY&gt;</code> when <code>ADMIN_API_KEY</code> is set in the Lambda environment.</p>
+    </section>
+
+    <footer>
+      <p><strong>DarLink Phase 1 MVP</strong> — System Design & Requirements Guide. For deployment and local run steps, see the project <code>README.md</code>. Phase 2: Cognito authorizer, full RBAC, org-scoped leads/applications/audit APIs, agent/broker flows, monetization placeholders.</p>
+    </footer>
+  </div>
+</body>
+</html>

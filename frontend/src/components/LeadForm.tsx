@@ -14,14 +14,15 @@ export default function LeadForm({ listingId }: { listingId: string }) {
     setStatus('sending');
     setErrorMsg('');
     const base = getApiBase();
-    const url = base ? `${base}/public/listings/${listingId}/leads` : `/api/public/listings/${listingId}/leads`;
+    const url = base ? `${base.replace(/\/$/, '')}/public/listings/${listingId}/leads` : `/api/public/listings/${listingId}/leads`;
     try {
       const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, phone, message }),
       });
-      const data = await res.json().catch(() => ({}));
+      const ct = res.headers.get('content-type') || '';
+      const data = ct.includes('application/json') ? await res.json().catch(() => ({})) : {};
       if (!res.ok) {
         setErrorMsg(data.error || res.statusText);
         setStatus('error');

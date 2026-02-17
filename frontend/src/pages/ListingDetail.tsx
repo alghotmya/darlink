@@ -28,9 +28,14 @@ export default function ListingDetail() {
   useEffect(() => {
     if (!id) return;
     const base = getApiBase();
-    const url = base ? `${base}/public/listings/${id}` : `/api/public/listings/${id}`;
+    const url = base ? `${base.replace(/\/$/, '')}/public/listings/${id}` : `/api/public/listings/${id}`;
     fetch(url)
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error('Not found'))))
+      .then((r) => {
+        const ct = r.headers.get('content-type') || '';
+        if (!r.ok) return Promise.reject(new Error(r.status === 404 ? 'Listing not found' : `Request failed: ${r.status}`));
+        if (!ct.includes('application/json')) return Promise.reject(new Error('API returned non-JSON'));
+        return r.json();
+      })
       .then(setListing)
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));

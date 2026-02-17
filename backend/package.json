@@ -7,7 +7,8 @@
     "cdk": "cdk",
     "deploy": "cdk deploy --require-approval never",
     "synth": "cdk synth",
-    "seed": "ts-node scripts/seed-data.ts"
+    "seed": "ts-node scripts/seed-data.ts",
+    "dev:api": "node local-api-server.js"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.600.0",

@@ -24,11 +24,20 @@ export default function Listings() {
 
   useEffect(() => {
     const base = getApiBase();
-    const url = base ? `${base}/public/listings` : '/api/public/listings';
+    const url = base ? `${base.replace(/\/$/, '')}/public/listings` : '/api/public/listings';
     fetch(url)
-      .then((r) => r.json())
+      .then((r) => {
+        const ct = r.headers.get('content-type') || '';
+        if (!r.ok) {
+          throw new Error(r.status === 404 ? 'API not found. Run the local API (see README) or set VITE_API_BASE_URL to your deployed API.' : `Request failed: ${r.status}`);
+        }
+        if (!ct.includes('application/json')) {
+          throw new Error('API returned non-JSON. Set VITE_API_BASE_URL in frontend/.env or run: cd backend && node local-api-server.js');
+        }
+        return r.json();
+      })
       .then((data) => {
-        if (data.listings) setListings(data.listings);
+        if (data?.listings) setListings(data.listings);
         else setListings([]);
       })
       .catch((e) => setError(e.message))
